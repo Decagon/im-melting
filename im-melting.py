@@ -9,11 +9,28 @@ from pyvirtualdisplay import Display
 from selenium import webdriver
 
 GOOGLE_MAPS_API_KEY = ""
-
+ACCUWEATHER_API_KEY = ""
 startLocation = urllib.parse.quote(input("What is your current location? "))
 endLocation = urllib.parse.quote(input("Where would you like to go? "))
-accuweatherLink = input(
-    "Paste in the accuweather link to the minutecast of your current location: ")
+
+googleMapsHTML = requests.get("https://maps.googleapis.com/maps/api/directions/json?origin=" + startLocation + "&destination=" +
+                              endLocation + "&key=" + GOOGLE_MAPS_API_KEY + "&mode=transit&alternatives=true").content
+routes = json.loads(googleMapsHTML.decode('utf-8'))["routes"]
+
+# lookup the accuweather link based on the starting location's GPS coordinates
+geoCoords = routes[0]['legs'][0]['start_location']  # lat and lng
+accuweatherLink = ""
+accuweatherGeoLookupLink = "http://dataservice.accuweather.com/locations/v1/cities/geoposition/search?apikey=" + \
+    ACCUWEATHER_API_KEY + "&q=" + \
+        str(geoCoords["lat"]) + "%2C" + str(geoCoords["lng"]) + "&details=true"
+accuweatherMinuteCast = requests.get(accuweatherGeoLookupLink).content
+
+datastore = json.loads(accuweatherMinuteCast.decode("utf-8"))
+
+host = "https://www.accuweather.com/en/"
+locationStem = datastore["Details"]["LocationStem"]
+key = datastore["Details"]["Key"]
+accuweatherLink = host + locationStem + "/minute-weather-forecast/" + key
 
 # this is very heavy-duty because AccuWeather times out using anything else with any other user agents
 # (e.g. the requests library) or throws a 401 unauthorized error
@@ -25,8 +42,6 @@ display.start()
 driver = webdriver.Chrome()
 driver.get(accuweatherLink)
 
-googleMapsHTML = requests.get("https://maps.googleapis.com/maps/api/directions/json?origin=" + startLocation + "&destination=" +
-                              endLocation + "&key=" + GOOGLE_MAPS_API_KEY + "&mode=transit&alternatives=true").content
 
 intensities = [
     "fff", "49e953", "02bf25", "189708", "016704", "005600", "004101", "f1d600", "f7a501", "ff5f01", "f01100", "b70902", "500200", "ff0991", "8c03cf",
@@ -62,7 +77,7 @@ for anElement in output.find_all("span"):
     resultantIntensities.append(closestIndex)
 
 results = []
-routes = json.loads(googleMapsHTML.decode('utf-8'))["routes"]
+
 for route in routes:
     routePackage = []
     legs = route["legs"]
