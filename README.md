@@ -5,14 +5,13 @@ I want to get from A to B, but I don't want to get wet. `im-melting` will tell y
 
 ## How to run
 
-Run `python3 im-melting.py` and follow the on-screen instructions. Requires a Google Maps API key to get the directions.
+Run `python3 im-melting.py` and follow the on-screen instructions. Requires a Google Maps API key (free) and an AccuWeather API Key (free) to get the directions and getr the weather.
 
 ## Sample output
 
 ```
 What is your current location? Vancouver, British Columbia
 Where would you like to go? Vancouver Aquarium, 845 Avison Way, Vancouver, BC V6G 3E2
-Paste in the accuweather link to the minutecast of your current location: https://www.accuweather.com/en/ca/vancouver/v6c/minute-weather-forecast/53286
 Downloading weather forecast... This may take several minutes...
 Out of 4 routes, the best route will only be 0 units of rain
 Subway towards Expo Line to King George (2 mins)
